@@ -136,7 +136,6 @@ namespace SharpSearch
                         searchTerm = args[2];
                         //threads = new List<ThreadStart>();
                     }
-                    int listSpaces = 16;
 
                     foreach (string f in files)
                     {
@@ -161,7 +160,7 @@ namespace SharpSearch
 
                             try
                             {
-                                IEnumerable<string> data = File.ReadLines(f);
+                                var data = File.ReadAllLines(f);
 
                                 foreach (var s in data)
                                 {
