@@ -8,14 +8,24 @@ Sick and tired of getting alerted on PowerShell and `dir` commands? No more! Thi
 
 ```
 Usage:
-        SharpSearch.exe Path\To\Search SearchPattern StringToSearchFor
+    Arguments:
+        Required:
+            path          - Path to search for files. Note: If using quoted paths, ensure you
+                            escape backslashes properly.
+        
+        Optional:
+            patttern      - Type of files to search for, e.g. ""*.txt"" (Optional)
+            searchterm    - Term to search for within files. (Optional)
 
-Example:
-        Search for all .ps1 files in C:\Users\
-                SharpSearch.exe C:\Users\ *.ps1
+    Examples:
+        
+        Find all files that have the phrase ""password"" in them.
+        
+            SharpSearch.exe path:""C:\\Users\\User\\My Documents\\"" searchterm:password
 
-        Search for all txt files containing the word "password"
-                SharpSearch.exe C:\Users\ *.txt password
+        Search for all batch files on a remote share that contain the word ""Administrator""
+
+            SharpSearch.exe path:""\\\\server01\\SYSVOL\\domain\\scripts\\"" pattern:*.bat searchTerm:Administrator 
 ```
 
 ## Examples
