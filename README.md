@@ -14,18 +14,18 @@ Usage:
                             escape backslashes properly.
         
         Optional:
-            patttern      - Type of files to search for, e.g. ""*.txt"" (Optional)
+            pattern      - Type of files to search for, e.g. "*.txt" (Optional)
             searchterm    - Term to search for within files. (Optional)
 
     Examples:
         
-        Find all files that have the phrase ""password"" in them.
+        Find all files that have the phrase "password" in them.
         
-            SharpSearch.exe path:""C:\\Users\\User\\My Documents\\"" searchterm:password
+            SharpSearch.exe path:"C:\\Users\\User\\My Documents\\" searchterm:password
 
-        Search for all batch files on a remote share that contain the word ""Administrator""
+        Search for all batch files on a remote share that contain the word "Administrator"
 
-            SharpSearch.exe path:""\\\\server01\\SYSVOL\\domain\\scripts\\"" pattern:*.bat searchTerm:Administrator 
+            SharpSearch.exe path:\\server01\SYSVOL\domain\scripts\ pattern:*.bat searchTerm:Administrator 
 ```
 
 ## Examples
