@@ -231,7 +231,7 @@ namespace SharpSearch
             ".dll"
         };
 
-        public bool HasCleanExtension(string path)
+        public static bool HasCleanExtension(string path)
         {
             return !(
                 EndsWithExtension(path, imageFormats) ||
@@ -239,7 +239,7 @@ namespace SharpSearch
                 EndsWithExtension(path, virtualImageFormats));
         }
 
-        static bool EndsWithExtension(string path, string[] extensionList)
+        public static bool EndsWithExtension(string path, string[] extensionList)
         {
             foreach(string ext in extensionList)
             {
