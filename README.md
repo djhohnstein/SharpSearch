@@ -2,7 +2,7 @@
 
 ## Description
 
-Sick and tired of getting alerted on PowerShell and `dir` commands? No more! This project searches for files with the desired extension, and if desired, searches them for a regex string.
+Project to quickly filter through a file share for targeted files for desired information.
 
 ## Usage
 
@@ -14,18 +14,28 @@ Usage:
                             escape backslashes properly.
         
         Optional:
-            pattern      - Type of files to search for, e.g. "*.txt" (Optional)
-            searchterm    - Term to search for within files. (Optional)
+            pattern       - Type of files to search for, e.g. "*.txt"
 
-    Examples:
+            searchterms   - Comma separated list of regexes to search for within files.
+
+            ext_whitelist - Specify file extension whitelist. e.g., ext_whitelist=.txt,.bat,.ps1
+
+            ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
+
+            searchterms   - Specify a comma deliminated list of searchterms. e.g.searchterms="foo, bar, asdf"
+
+            year          - Filter files by year.
+
+
+ Examples:
         
-        Find all files that have the phrase "password" in them.
+        Find all files that have the phrase ""password"" in them.
         
-            SharpSearch.exe path:"C:\\Users\\User\\My Documents\\" searchterm:password
+            SharpSearch.exe path="C:\Users\User\Documents\" searchterms=password
 
-        Search for all batch files on a remote share that contain the word "Administrator"
+        Find all batch and powershell scripts in SYSVOL that were created in 2018 containing the word Administrator
 
-            SharpSearch.exe path:\\server01\SYSVOL\domain\scripts\ pattern:*.bat searchTerm:Administrator 
+            SharpSearch.exe path="\\DC01\SYSVOL" ext_whitelist=.ps1,.bat searchterms=Administrator year=2018
 ```
 
 ## Examples
@@ -52,6 +62,6 @@ Directory of C:\Users\EXAMPLE\hashcat-4.2.1\wordlists\ProbWL-v2-Real-Passwords-7
                3 File(s)     21.64 GB
                3 Dir(s)
 ```
+## Special Thanks
 
-
-
+Special thanks to [@x3419](https://github.com/x3419) for creating SharperSearch which spurred the revamp to this project.

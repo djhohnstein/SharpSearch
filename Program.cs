@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics;
 
 namespace SharpSearch
 {
@@ -24,7 +25,7 @@ Usage:
                             escape backslashes properly.
         
         Optional:
-            pattern      - Type of files to search for, e.g. "" *.txt""
+            pattern       - Type of files to search for, e.g. "" *.txt""
 
             searchterms   - Comma separated list of regexes to search for within files.
 
@@ -32,7 +33,9 @@ Usage:
 
             ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
 
-            searchterms - Specify a comma deliminated list of searchterms. e.g.searchterms=""foo, bar, asdf""
+            searchterms   - Specify a comma deliminated list of searchterms. e.g.searchterms=""foo, bar, asdf""
+
+            year          - Filter files by year.
 
 
  Examples:
@@ -41,9 +44,9 @@ Usage:
         
             SharpSearch.exe path=""C:\\Users\\User\\My Documents\\"" searchterms=password
 
-        Search for all batch files on a remote share that contain the word ""Administrator""
+        Find all batch and powershell scripts in SYSVOL that were created in 2018 containing the word Administrator
 
-            SharpSearch.exe path=""\\\\server01\\SYSVOL\\domain\\scripts\\"" pattern=""*.bat"" searchterms=Administrator 
+            SharpSearch.exe path=""\\\\DC01\\SYSVOL"" ext_whitelist=.ps1,.bat searchterms=Administrator year=2018
 ";
             Console.WriteLine(usageString);
         }
@@ -128,7 +131,15 @@ Usage:
             string[] files = FileWorkers.GetAllFiles(parsedArgs);
             if (files.Length > 0)
             {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
                 Utils.PrintResults(files);
+                stopWatch.Stop();
+                TimeSpan timeElapsed = stopWatch.Elapsed;
+                string elapsedTime = String.Format("{0:00}H:{1:00}M:{2:00}.{3:00}S",
+                timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds,
+                timeElapsed.Milliseconds / 10);
+                Console.WriteLine("Finished in " + elapsedTime);
             }
             else
             {

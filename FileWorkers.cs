@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Diagnostics;
 
 namespace SharpSearch
 {
@@ -48,7 +49,12 @@ namespace SharpSearch
             }
         }
 
-        static void ParseDirectory(string path, string pattern = null, string[] ext_whitelist = null, string[] ext_blacklist = null, string[] searchterms = null)
+        static void ParseDirectory(string path,
+                                   string pattern = null,
+                                   string[] ext_whitelist = null,
+                                   string[] ext_blacklist = null,
+                                   string[] searchterms = null,
+                                   string year = null)
         {
             string[] files = null;
             string[] directories = null;
@@ -61,7 +67,7 @@ namespace SharpSearch
                 foreach(string dir in directories)
                 {
                     //Console.WriteLine("Searching {0}", dir);
-                    Thread t = new Thread(() => ParseDirectory(dir, pattern, ext_whitelist, ext_blacklist, searchterms));
+                    Thread t = new Thread(() => ParseDirectory(dir, pattern, ext_whitelist, ext_blacklist, searchterms, year));
                     t.Start();
                     //Console.WriteLine("Started thread");
                     _pool.WaitOne(500);
@@ -100,6 +106,19 @@ namespace SharpSearch
                 foreach(string f in files)
                 {
                     validExtensionFiles.Add(f);
+                }
+            }
+
+            if (year != null && year != "")
+            {
+                foreach(string fname in validExtensionFiles.ToArray())
+                {
+                    FileInfo fileInfo = new FileInfo(fname);
+                    string lastWrite = File.GetLastWriteTime(fileInfo.FullName).Date.ToString();
+                    if (!lastWrite.Contains(year))
+                    {
+                        validExtensionFiles.Remove(fname);
+                    }
                 }
             }
 
@@ -144,11 +163,13 @@ namespace SharpSearch
             string blacklistKey = "ext_blacklist";
             string searchtermsKey = "searchterms";
             string patternKey = "pattern";
-
+            string yearKey = "year";
             string[] ext_whitelist = GetValueFromDict(args, whitelistKey);
             string[] ext_blacklist = GetValueFromDict(args, blacklistKey);
             string[] searchterms = GetValueFromDict(args, searchtermsKey);
+
             string pattern = null;
+            string year = null;
             string path = args["path"][0];
 
             if (GetValueFromDict(args, patternKey) != null)
@@ -156,10 +177,15 @@ namespace SharpSearch
                 pattern = GetValueFromDict(args, patternKey)[0];
             }
 
+            if (GetValueFromDict(args, yearKey) != null)
+            {
+                year = GetValueFromDict(args, yearKey)[0];
+            }
 
-            ThreadPool.SetMaxThreads(20, 20);
 
-            ParseDirectory(path, pattern, ext_whitelist, ext_blacklist, searchterms);
+            ThreadPool.SetMaxThreads(200, 200);
+
+            ParseDirectory(path, pattern, ext_whitelist, ext_blacklist, searchterms, year);
             // Artificial sleep to ensure thread queue gets populated
             //Thread.Sleep(1000);
             while (runningThreads.Count > 0)
@@ -170,12 +196,6 @@ namespace SharpSearch
                 runningThreads.RemoveAt(0);
                 _pool.Release(1);
             }
-            //foreach(Thread t in runningThreads)
-            //{
-            //    t.Join();
-            //}
-            Console.WriteLine("Done waiting for threads to finish.");
-            Console.WriteLine("Matching files count: {0}", matchingFiles.Count);
             return matchingFiles.ToArray();
         }
 
