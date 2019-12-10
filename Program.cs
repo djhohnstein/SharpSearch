@@ -27,8 +27,6 @@ Usage:
         Optional:
             pattern       - Type of files to search for, e.g. "" *.txt""
 
-            searchterms   - Comma separated list of regexes to search for within files.
-
             ext_whitelist - Specify file extension whitelist. e.g., ext_whitelist=.txt,.bat,.ps1
 
             ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
@@ -126,24 +124,28 @@ Usage:
                 Console.WriteLine("[X] Error: Path {0} does not exist.", path);
                 Environment.Exit(1);
             }
-
-
-            string[] files = FileWorkers.GetAllFiles(parsedArgs);
-            if (files.Length > 0)
+            try
             {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-                Utils.PrintResults(files);
-                stopWatch.Stop();
-                TimeSpan timeElapsed = stopWatch.Elapsed;
-                string elapsedTime = String.Format("{0:00}H:{1:00}M:{2:00}.{3:00}S",
-                timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds,
-                timeElapsed.Milliseconds / 10);
-                Console.WriteLine("Finished in " + elapsedTime);
-            }
-            else
+                string[] files = FileWorkers.GetAllFiles(parsedArgs);
+                if (files.Length > 0)
+                {
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
+                    Utils.PrintResults(files);
+                    stopWatch.Stop();
+                    TimeSpan timeElapsed = stopWatch.Elapsed;
+                    string elapsedTime = String.Format("{0:00}H:{1:00}M:{2:00}.{3:00}S",
+                    timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds,
+                    timeElapsed.Milliseconds / 10);
+                    Console.WriteLine("Finished in " + elapsedTime);
+                }
+                else
+                {
+                    Console.WriteLine("\n[-] No files found in {0} with pattern {1}", path, pattern);
+                }
+            } catch (Exception ex)
             {
-                Console.WriteLine("\n[-] No files found in {0} with pattern {1}", path, pattern);
+                Console.WriteLine("[X] Error: {0}\n\t{1}", ex.Message, ex.StackTrace);
             }
         }
     }
