@@ -16,8 +16,6 @@ Usage:
         Optional:
             pattern       - Type of files to search for, e.g. "*.txt"
 
-            searchterms   - Comma separated list of regexes to search for within files.
-
             ext_whitelist - Specify file extension whitelist. e.g., ext_whitelist=.txt,.bat,.ps1
 
             ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
