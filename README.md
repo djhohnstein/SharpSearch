@@ -14,13 +14,13 @@ Usage:
                             escape backslashes properly.
         
         Optional:
-            pattern       - Type of files to search for, e.g. "*.txt"
+            pattern       - Type of files to search for, e.g. "" *.txt""
 
-            ext_whitelist - Specify file extension whitelist. e.g., ext_whitelist=.txt,.bat,.ps1
+            ext_filterlist - Specify file extension to filter for. e.g., ext_filterlist=.txt,.bat,.ps1
 
-            ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
+            ext_blocklist - Specify file extension to ignore. e.g., ext_blocklist=.zip,.tar,.txt
 
-            searchterms   - Specify a comma deliminated list of searchterms. e.g.searchterms="foo, bar, asdf"
+            searchterms   - Specify a comma deliminated list of searchterms. e.g.searchterms=""foo, bar, asdf""
 
             year          - Filter files by year.
 
@@ -29,11 +29,11 @@ Usage:
         
         Find all files that have the phrase ""password"" in them.
         
-            SharpSearch.exe path="C:\Users\User\Documents\" searchterms=password
+            SharpSearch.exe path=""C:\\Users\\User\\My Documents\\"" searchterms=password
 
         Find all batch and powershell scripts in SYSVOL that were created in 2018 containing the word Administrator
 
-            SharpSearch.exe path="\\DC01\SYSVOL" ext_whitelist=.ps1,.bat searchterms=Administrator year=2018
+            SharpSearch.exe path=""\\\\DC01\\SYSVOL"" ext_filterlist=.ps1,.bat searchterms=Administrator year=2018
 ```
 
 ## Examples
