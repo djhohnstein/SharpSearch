@@ -101,7 +101,7 @@ Usage:
             if (!ValidateArguments(parsedArgs))
             {
                 Usage();
-                Environment.Exit(1);
+                return;
             }
 
             path = parsedArgs["path"][0];
@@ -109,7 +109,7 @@ Usage:
             if (!Directory.Exists(path))
             {
                 Console.WriteLine("[X] Error: Path {0} does not exist.", path);
-                Environment.Exit(1);
+                return;
             }
             try
             {
