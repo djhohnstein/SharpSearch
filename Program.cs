@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Diagnostics;
 
 namespace SharpSearch
@@ -13,7 +10,12 @@ namespace SharpSearch
     class Program
     {
 
-        private static List<Thread> runningThreads = new List<Thread>();
+        static string FilterKey = "ext_filterlist";
+        static string BlockKey = "ext_blocklist";
+        static string PatternKey = "pattern";
+        static string SearchKey = "searchterms";
+        static string YearKey = "year";
+
 
         static void Usage()
         {
@@ -27,9 +29,9 @@ Usage:
         Optional:
             pattern       - Type of files to search for, e.g. "" *.txt""
 
-            ext_whitelist - Specify file extension whitelist. e.g., ext_whitelist=.txt,.bat,.ps1
+            ext_filterlist - Specify file extension to filter for. e.g., ext_filterlist=.txt,.bat,.ps1
 
-            ext_blacklist - Specify file extension blacklist. e.g., ext_blacklist=.zip,.tar,.txt
+            ext_blocklist - Specify file extension to ignore. e.g., ext_blocklist=.zip,.tar,.txt
 
             searchterms   - Specify a comma deliminated list of searchterms. e.g.searchterms=""foo, bar, asdf""
 
@@ -44,7 +46,7 @@ Usage:
 
         Find all batch and powershell scripts in SYSVOL that were created in 2018 containing the word Administrator
 
-            SharpSearch.exe path=""\\\\DC01\\SYSVOL"" ext_whitelist=.ps1,.bat searchterms=Administrator year=2018
+            SharpSearch.exe path=""\\\\DC01\\SYSVOL"" ext_filterlist=.ps1,.bat searchterms=Administrator year=2018
 ";
             Console.WriteLine(usageString);
         }
@@ -53,7 +55,7 @@ Usage:
         static Dictionary<string,string[]> ParseArgs(string[] args)
         {
             Dictionary<string, string[]> result = new Dictionary<string, string[]>();
-            string[] commaTerms = new string[] { "ext_whitelist", "ext_blacklist", "search_whitelist", "searchterms"};
+            string[] commaTerms = new string[] { FilterKey, BlockKey, SearchKey};
             foreach(string arg in args)
             {
                 string[] parts = arg.Split("=".ToCharArray(), 2);
@@ -91,22 +93,9 @@ Usage:
             return true;
         }
 
-        static void PrintOptions(Dictionary<string, string[]> args)
-        {
-            Console.WriteLine("[+] Parsed Arguments:");
-            foreach(string key in args.Keys)
-            {
-                Console.WriteLine("\t{0}: {1}", key, string.Join(", ", args[key]));
-            }
-            Console.WriteLine();
-        }
-
         static void Main(string[] args)
         {
             string path = "";
-            string pattern = "";
-            string searchTerm = "";
-
             var parsedArgs = ParseArgs(args);
 
             if (!ValidateArguments(parsedArgs))
@@ -114,8 +103,6 @@ Usage:
                 Usage();
                 Environment.Exit(1);
             }
-
-            PrintOptions(parsedArgs);
 
             path = parsedArgs["path"][0];
 
@@ -126,11 +113,66 @@ Usage:
             }
             try
             {
-                string[] files = FileWorkers.GetAllFiles(parsedArgs);
+
+                string[] filterList = null;
+                string[] blockList = null;
+                string[] searchterms = null;
+                string pattern = null;
+                string year = null;
+
+
+                if (parsedArgs.TryGetValue(FilterKey, out string[] val))
+                {
+                    filterList = val;
+                }
+                if (parsedArgs.TryGetValue(BlockKey, out string[] val2))
+                {
+                    blockList = val2;
+                }
+                if (parsedArgs.TryGetValue(SearchKey, out string[] val3))
+                {
+                    searchterms = val3;
+                }
+                if (parsedArgs.TryGetValue(PatternKey, out string[] val4))
+                {
+                    pattern = val4[0];
+                }
+                if (parsedArgs.TryGetValue(YearKey, out string[] val5))
+                {
+                    year = val5[0];
+                }
+                Console.WriteLine($"[*] Searching path: {path}");
+                if (filterList != null)
+                {
+                    Console.WriteLine($"[*] Filtering for extensions: {String.Join(",", filterList)}");
+                }
+
+                if (blockList != null)
+                {
+                    Console.WriteLine($"[*] Blocking files with extension: {String.Join(",", blockList)}");
+                }
+
+                if (searchterms != null)
+                {
+                    Console.WriteLine($"[*] Filtering for files with content containing: {String.Join(",", searchterms)}");
+                }
+
+                if (pattern != null)
+                {
+                    Console.WriteLine($"[*] Filtering for files whose title is like: {pattern}");
+                }
+
+                if (year != null)
+                {
+                    Console.WriteLine($"[*] Filtering for files whose last write date is from {year}");
+                }
+
+                FileSearcher searcher = new FileSearcher(filterList, blockList, searchterms, pattern, year);
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                string[] files = searcher.Search(path);
                 if (files.Length > 0)
                 {
-                    Stopwatch stopWatch = new Stopwatch();
-                    stopWatch.Start();
                     Utils.PrintResults(files);
                     stopWatch.Stop();
                     TimeSpan timeElapsed = stopWatch.Elapsed;
